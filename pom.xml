@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.spring</groupId>
-	<artifactId>sentiment</artifactId>
+	<artifactId>sentiment-demo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>sentiment</name>
+	<name>sentiment-demo</name>
 	<description>Demo project for Spring Boot</description>
 
 	<parent>
@@ -70,6 +70,34 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.21.0</version>
+				<configuration>
+					<images>
+						<image>
+							<name>dturanski/${project.artifactId}</name>
+							<build>
+								<from>java:8-alpine</from>
+								<volumes>
+									<volume>/tmp</volume>
+								</volumes>
+								<entryPoint>
+									<exec>
+										<arg>java</arg>
+										<arg>-jar</arg>
+										<arg>/maven/sentiment-demo.jar</arg>
+									</exec>
+								</entryPoint>
+								<assembly>
+									<descriptor>assembly.xml</descriptor>
+								</assembly>
+							</build>
+						</image>
+					</images>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
