@@ -16,29 +16,22 @@
 
 package io.spring.sentiment;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author David Turanski
  **/
-
-@RestController
-@Import(ServiceConfiguration.class)
-public class SentimentController {
-	private static Logger log = LoggerFactory.getLogger(SentimentController.class);
-
-	@Autowired
-	private SentimentService sentimentService;
-
-	@PostMapping("/sentiments")
-	public String sentiments(@RequestBody String tweets) {
-		log.info("request {}",tweets);
-		return sentimentService.getSentiments(tweets);
-	}
+@Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+@Import(DummyBinderConfiguration.class)
+public @interface DisableBinding {
 }
