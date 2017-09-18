@@ -2,19 +2,26 @@ package io.spring.sentiment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.cloud.stream.app.tcp.client.processor.TcpClientProcessorConfiguration;
+import org.springframework.cloud.stream.app.tcp.client.processor.TcpClientProcessorProperties;
 import org.springframework.cloud.stream.messaging.Processor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.handler.MessageProcessor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.SubscribableChannel;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @SpringBootApplication
 @Import(TcpClientProcessorConfiguration.class)
