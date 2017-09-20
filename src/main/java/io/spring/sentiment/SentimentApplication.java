@@ -2,30 +2,23 @@ package io.spring.sentiment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Output;
+import org.springframework.cloud.stream.app.grpc.processor.GrpcProcessorConfiguration;
 import org.springframework.cloud.stream.app.tcp.client.processor.TcpClientProcessorConfiguration;
-import org.springframework.cloud.stream.app.tcp.client.processor.TcpClientProcessorProperties;
 import org.springframework.cloud.stream.messaging.Processor;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.handler.MessageProcessor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.SubscribableChannel;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 @SpringBootApplication
-@Import(TcpClientProcessorConfiguration.class)
-@EnableBinding(SentimentApplication.SentimentSource.class)
+
 public class SentimentApplication {
 	private static Logger logger = LoggerFactory.getLogger(SentimentApplication.class);
 
@@ -33,8 +26,17 @@ public class SentimentApplication {
 		SpringApplication.run(SentimentApplication.class, args);
 	}
 
-	@Autowired
-	public SentimentSource sentimentSource;
+	@Profile("default")
+	@Import(TcpClientProcessorConfiguration.class)
+	@EnableBinding(SentimentApplication.SentimentSource.class)
+	static class TcpConfig {
+	}
+
+	@Profile("grpc")
+	@Import(GrpcProcessorConfiguration.class)
+	@EnableBinding(SentimentApplication.SentimentSource.class)
+	static class GrpcConfig {
+	}
 
 	@Bean
 	@ServiceActivator(inputChannel = Processor.OUTPUT, outputChannel = "sentiments")
@@ -43,7 +45,9 @@ public class SentimentApplication {
 			@Override
 			public String processMessage(Message<?> message) {
 				logger.info("processing {}", message.getPayload());
-				return new String((byte[]) message.getPayload());
+				return message.getPayload() instanceof byte[] ?
+					new String((byte[]) message.getPayload()) :
+					(String) message.getPayload();
 			}
 		};
 	}
